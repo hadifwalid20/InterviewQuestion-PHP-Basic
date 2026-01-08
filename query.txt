@@ -1,0 +1,61 @@
+a) Update employee_no 1002 job to 4 with effective 2020-01-01
+
+UPDATE employee_job_table ej
+JOIN employee_profile_table ep
+  ON ep.employee_id = ej.employee_id
+JOIN (
+  SELECT employee_id, MAX(effective_date) AS max_eff
+  FROM employee_job_table
+  GROUP BY employee_id
+) latest
+  ON latest.employee_id = ej.employee_id
+ AND latest.max_eff = ej.effective_date
+SET ej.job_id = 4,
+    ej.effective_date = '2020-01-01'
+WHERE ep.employee_no = 1002;
+
+
+b) List employee_name, employee_no, effective_date, job title
+
+SELECT
+  ep.employee_name,
+  ep.employee_no,
+  ej.effective_date,
+  jp.job_name AS job_title
+FROM employee_profile_table ep
+JOIN employee_job_table ej
+  ON ej.employee_id = ep.employee_id
+JOIN job_profile_table jp
+  ON jp.job_id = ej.job_id
+ORDER BY ep.employee_no, ej.effective_date;
+
+
+c) List employee_name, employee_no, latest job title
+
+SELECT
+  ep.employee_name,
+  ep.employee_no,
+  jp.job_name AS latest_job_title
+FROM employee_profile_table ep
+JOIN employee_job_table ej
+  ON ej.employee_id = ep.employee_id
+JOIN (
+  SELECT employee_id, MAX(effective_date) AS max_eff
+  FROM employee_job_table
+  GROUP BY employee_id
+) latest
+  ON latest.employee_id = ej.employee_id
+ AND latest.max_eff = ej.effective_date
+JOIN job_profile_table jp
+  ON jp.job_id = ej.job_id
+ORDER BY ep.employee_no;
+
+
+d) Delete all rows for employee_no 1000 with effective_date 2020-01-01
+
+DELETE ej
+FROM employee_job_table ej
+JOIN employee_profile_table ep
+  ON ep.employee_id = ej.employee_id
+WHERE ep.employee_no = 1000
+  AND ej.effective_date = '2020-01-01';
